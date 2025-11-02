@@ -69,7 +69,7 @@ int xdp_program(struct xdp_md *ctx) {
 				__u64 *lastp = bpf_map_lookup_elem(&last_time, &key);
 				if (lastp) {
 					if (now - *lastp < TWO_SECONDS_NS) {
-						// too soon for this client
+						// rate-limit this client by dropping it's packet
 						bpf_printk("RATE LIMIT HIT");
 						bpf_printk("=================================="); // For nicer logging
 						return XDP_DROP;
