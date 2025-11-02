@@ -61,28 +61,21 @@ int xdp_program(struct xdp_md *ctx) {
 					bpf_ntohs(icmp6->icmp6_dataun.u_echo.identifier),
 					bpf_ntohs(icmp6->icmp6_dataun.u_echo.sequence));
 
-				// copy 16 bytes of IPv6 src into key
 				struct ipv6_key key = {};
-				__builtin_memcpy(&key.addr, &ipv6->saddr, sizeof(key.addr));
-
-				__u64 now = bpf_ktime_get_ns();
-				__u64 *lastp = bpf_map_lookup_elem(&last_time, &key);
-				if (lastp) {
-					if (now - *lastp < TWO_SECONDS_NS) {
-						// rate-limit this client by dropping it's packet
-						bpf_printk("RATE LIMIT HIT");
-						bpf_printk("=================================="); // For nicer logging
-						return XDP_DROP;
-					} else {
-						// all goood
-						bpf_printk("OK");
-						bpf_printk("=================================="); // For nicer logging
-					}
-					*lastp = now; // update allowed timestamp
-				} else {
-					// First time we see this client: allow it and set timestamp
-					bpf_map_update_elem(&last_time, &key, &now, BPF_ANY);
-				}
+			    __builtin_memcpy(&key.addr, &ipv6->saddr, sizeof(key.addr)); // copy 16 bytes of IPv6 into key
+			
+			    __u64 now = bpf_ktime_get_ns(); // Get current time from boot in ns
+			    __u64 *lastp = bpf_map_lookup_elem(&last_time, &key); // Check last packet timestamp from this
+			    if (lastp) {
+			    	if (now - *lastp < TWO_SECONDS_NS) {
+			        	// rate-limit this client by dropping it's packet
+			          	return XDP_DROP;
+			        }
+			        *lastp = now; // update allowed timestamp
+			    } else {
+			        // First time we see this client: allow it and set timestamp
+			        bpf_map_update_elem(&last_time, &key, &now, BPF_ANY);
+			    }
 			}
 			goto out;
 		}
