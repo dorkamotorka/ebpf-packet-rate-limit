@@ -57,16 +57,7 @@ int xdp_program(struct xdp_md *ctx) {
 					bpf_ntohs(ipv6->saddr.in6_u.u6_addr16[6]),
 					bpf_ntohs(ipv6->saddr.in6_u.u6_addr16[7]));
 
-				bpf_printk("IPv6 dst: %x:%x:%x:%x:%x:%x:%x:%x",
-					bpf_ntohs(ipv6->daddr.in6_u.u6_addr16[0]),
-					bpf_ntohs(ipv6->daddr.in6_u.u6_addr16[1]),
-					bpf_ntohs(ipv6->daddr.in6_u.u6_addr16[2]),
-					bpf_ntohs(ipv6->daddr.in6_u.u6_addr16[3]),
-					bpf_ntohs(ipv6->daddr.in6_u.u6_addr16[4]),
-					bpf_ntohs(ipv6->daddr.in6_u.u6_addr16[5]),
-					bpf_ntohs(ipv6->daddr.in6_u.u6_addr16[6]),
-					bpf_ntohs(ipv6->daddr.in6_u.u6_addr16[7]));
-			    	bpf_printk("Echo id=%d seq=%d",
+			    bpf_printk("Echo id=%d seq=%d",
 					bpf_ntohs(icmp6->icmp6_dataun.u_echo.identifier),
 					bpf_ntohs(icmp6->icmp6_dataun.u_echo.sequence));
 
