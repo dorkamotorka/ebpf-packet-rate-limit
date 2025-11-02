@@ -4,7 +4,7 @@
 #include <bpf/bpf_tracing.h>
 #include "parse_helpers.h"
 
-#define NSEC_PER_SEC 2000000000ULL
+#define TWO_SECONDS_NS 2000000000ULL
 
 struct ipv6_key {
     __u8 addr[16];
@@ -68,7 +68,7 @@ int xdp_program(struct xdp_md *ctx) {
 				__u64 now = bpf_ktime_get_ns();
 				__u64 *lastp = bpf_map_lookup_elem(&last_time, &key);
 				if (lastp) {
-					if (now - *lastp < NSEC_PER_SEC) {
+					if (now - *lastp < TWO_SECONDS_NS) {
 						// too soon for this client
 						bpf_printk("RATE LIMIT HIT");
 						bpf_printk("=================================="); // For nicer logging
