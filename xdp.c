@@ -74,12 +74,13 @@ int xdp_program(struct xdp_md *ctx) {
 						bpf_printk("=================================="); // For nicer logging
 						return XDP_DROP;
 					} else {
+						// all goood
 						bpf_printk("OK");
 						bpf_printk("=================================="); // For nicer logging
 					}
 					*lastp = now; // update allowed timestamp
 				} else {
-					// First time we see this client: allow and set timestamp
+					// First time we see this client: allow it and set timestamp
 					bpf_map_update_elem(&last_time, &key, &now, BPF_ANY);
 				}
 			}
